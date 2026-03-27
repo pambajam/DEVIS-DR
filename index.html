@@ -18,8 +18,9 @@
         td { padding: 12px 10px; border-bottom: 1px solid #eee; }
         .input-montant { width: 110px; text-align: right; font-weight: bold; background: #fffde7 !important; border: 1px solid #ddd; }
         .total-row { background: #f8f9fa; font-weight: bold; }
-        .solde-box { background: #880e4f; color: white; font-size: 1.2em; font-weight: bold; }
+        .solde-box { background: #880e4f; color: white; font-size: 1.1em; font-weight: bold; }
         .solde-box td { border-bottom: none; padding: 15px; }
+        .mention-indicative { font-size: 12px; font-style: italic; color: #666; text-align: right; margin-top: 5px; }
         .info-complementaire { margin-top: 25px; padding: 15px; border-left: 4px solid #e91e63; background: #fff5f8; font-size: 13px; line-height: 1.5; }
         .signature-zone { text-align: right; margin-top: 30px; }
         .signature-img { max-width: 150px; height: auto; margin-top: 5px; }
@@ -73,19 +74,19 @@
                 <span id="type-presta-display"></span>
                 <select id="type-presta">
                     <option value="0">-- Choisir --</option>
-                    <option value="500">Bar</option>
-                    <option value="1200">Fest / Privée</option>
+                    <option value="500">Bar (500€)</option>
+                    <option value="1200">Fest (1200€)</option>
                 </select>
             </td>
             <td style="text-align: right;"><input type="text" id="prestation" class="input-montant" value="0"> €</td>
         </tr>
         <tr>
             <td>
-                Logistique (Sono + Lights)
+                Logistique (Sono + Light)
                 <span id="type-log-display"></span>
                 <select id="type-log">
-                    <option value="0">Sans</option>
-                    <option value="200">Avec</option>
+                    <option value="0">Sans (0€)</option>
+                    <option value="200">Avec (200€)</option>
                 </select>
             </td>
             <td style="text-align: right;"><input type="text" id="logistique" class="input-montant" value="0"> €</td>
@@ -105,14 +106,20 @@
             <td style="text-align: right;"><input type="text" id="acompte" class="input-montant" value="0" style="color: #c2185b;"> €</td>
         </tr>
         <tr class="solde-box">
-            <td>SOLDE RESTANT À RÉGLER</td>
+            <td>SOLDE RESTANT À VERSER LE JOUR DE LA PRESTATION</td>
             <td style="text-align: right;"><span id="solde-final">0,00</span> €</td>
         </tr>
     </table>
+    
+    <div class="mention-indicative">
+        "Ce montant est indicatif et peut évidemment être sujet à discussion selon l'événement"
+    </div>
 
     <div class="info-complementaire">
         <strong>Conditions d'annulation :</strong> En cas d'annulation par l'organisateur moins de 3 semaines (21 jours) avant l'événement, l'association se réserve le droit de conserver l'intégralité de l'acompte.<br><br>
-        <strong>Note :</strong> Mention légale : TVA non applicable, art. 293 B du CGI.
+        <strong>Note :</strong> Règlement de l'acompte par virement. <br>
+        <strong>IBAN : FR76 1380 7000 6133 8210 2290 074</strong> | BIC : CMCIFR2A<br>
+        Mention légale : TVA non applicable, art. 293 B du CGI.
     </div>
 
     <div class="signature-zone">
@@ -122,13 +129,13 @@
 
     <div class="footer">
         Association Power Load - RNA : W442027140 - 1045 Les Bourelaines 44521 Oudon<br>
-        Contact : 06 81 06 51 12 - <strong>IBAN : FR76 1380 7000 6133 8210 2290 074</strong>
+        Contact : 06 81 06 51 12
     </div>
 </div>
 
 <div class="btn-group">
-    <button id="btn-pdf" class="btn" disabled title="Remplir Email et Tel pour activer">1. GÉNÉRER PDF</button>
-    <button id="btn-mail" class="btn" disabled title="Remplir Email et Tel pour activer">2. PRÉPARER L'EMAIL</button>
+    <button id="btn-pdf" class="btn" disabled>1. GÉNÉRER PDF</button>
+    <button id="btn-mail" class="btn" disabled>2. PRÉPARER L'EMAIL</button>
 </div>
 
 <script>
@@ -148,7 +155,6 @@
         const soldeSpan = document.getElementById('solde-final');
         const buttons = [document.getElementById('btn-pdf'), document.getElementById('btn-mail')];
 
-        // Activation uniquement si mail et tel sont présents
         if (mail === "" || tel === "") {
             totalSpan.innerText = "0,00";
             soldeSpan.innerText = "0,00";
