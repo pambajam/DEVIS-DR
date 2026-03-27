@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Devis Dirty Rosie - 2026</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #eceff1; margin: 0; padding: 10px; color: #333; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #eceff1; margin: 0; padding: 10px; color: #333; }
         #facture-container { background: white; padding: 30px; width: 98%; max-width: 750px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; border-radius: 8px; position: relative; }
         .header { text-align: center; margin-bottom: 25px; border-bottom: 3px solid #e91e63; padding-bottom: 15px; }
-        .logo-img { max-width: 180px; height: auto; display: block; margin: 0 auto 10px auto; }
+        .logo-img { max-width: 220px; height: auto; display: block; margin: 0 auto 10px auto; }
         .facture-titre { background: #fce4ec; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px; border: 1px solid #f8bbd0; }
         .num-input { width: 250px; font-weight: bold; text-align: center; border: 1px dashed #e91e63; background: #fff; font-size: 1.1em; color: #c2185b; padding: 5px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
-        input:focus { border-color: #e91e63; outline: none; background: #fffcfd; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
+        .required-field { border: 2px solid #e91e63 !important; background: #fffcfd; }
+        select { cursor: pointer; background: #fff; border: 1px solid #e91e63; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin-top: 25px; }
         td { padding: 12px 10px; border-bottom: 1px solid #eee; }
         .input-montant { width: 110px; text-align: right; font-weight: bold; background: #fffde7 !important; border: 1px solid #ddd; }
@@ -23,53 +24,77 @@
         .signature-zone { text-align: right; margin-top: 30px; }
         .signature-img { max-width: 150px; height: auto; margin-top: 5px; }
         .footer { margin-top: 35px; text-align: center; font-size: 11px; color: #666; border-top: 1px solid #eee; padding-top: 15px; }
-        #suggestions { position: absolute; background: white; border: 1px solid #ccc; width: calc(100% - 60px); z-index: 100; display: none; list-style: none; padding: 0; margin: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        #suggestions { position: absolute; background: white; border: 1px solid #ccc; width: calc(100% - 60px); z-index: 100; display: none; list-style: none; padding: 0; margin: 0; }
         #suggestions li { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
-        #suggestions li:hover { background: #fce4ec; }
         .btn-group { display: flex; gap: 10px; max-width: 750px; margin: 20px auto; }
         .btn { flex: 1; padding: 18px; border: none; font-weight: bold; font-size: 1.1em; border-radius: 12px; cursor: pointer; color: white; transition: 0.3s; }
         #btn-pdf { background: #e91e63; }
         #btn-mail { background: #1976d2; }
-        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
-
+        .btn:disabled { background: #ccc; cursor: not-allowed; opacity: 0.6; }
+        
         @media print { 
-            .btn-group, #suggestions { display: none !important; } 
+            .btn-group, #suggestions, select { display: none !important; } 
+            #type-presta-display, #type-log-display { display: inline-block !important; font-weight: bold; }
             body { background: white; padding: 0; } 
             #facture-container { box-shadow: none; width: 100%; margin: 0; padding: 10px; } 
             input { border: none !important; background: transparent !important; padding: 2px !important; } 
             .input-montant { border: none !important; } 
         }
+        #type-presta-display, #type-log-display { display: none; }
     </style>
 </head>
 <body>
 
 <div id="facture-container">
     <div class="header">
-        <img src="https://github.com/pambajam/FACTURE-DR/blob/main/logo.png?raw=true" alt="Logo" class="logo-img">
-        <div style="font-size: 12px; font-weight: bold; color: #555;">GROUPE DIRTY ROSIE - Association Powerload</div>
+        <img src="https://github.com/pambajam/DEVIS-DR/blob/main/Dirty%20rosie%20sans%20fond.png?raw=true" alt="Logo Dirty Rosie" class="logo-img">
+        <div style="font-size: 12px; font-weight: bold; color: #555; margin-top: 10px;">GROUPE DIRTY ROSIE - Association Powerload</div>
     </div>
 
     <div class="facture-titre">
         <div style="font-size: 1.1em; font-weight: bold;">DEVIS N° <input type="text" id="num-devis" class="num-input"></div>
         <div id="date-display" style="margin-top: 8px; font-weight: bold; color: #444;"></div>
-        <div style="font-size: 11px; font-style: italic; color: #888;">Valable 30 jours</div>
     </div>
 
     <div style="position: relative;">
         <input type="text" id="client-name" placeholder="Nom de l'organisateur / Lieu">
-        <input type="email" id="client-email" placeholder="E-mail de l'organisateur (pour l'envoi)">
-        <input type="text" id="adresse-input" placeholder="Adresse du concert (Saisie intuitive...)" autocomplete="off">
+        <div style="display: flex; gap: 10px;">
+            <input type="email" id="client-email" class="required-field" placeholder="E-mail (OBLIGATOIRE)" required>
+            <input type="tel" id="client-tel" class="required-field" placeholder="Téléphone (OBLIGATOIRE)" required>
+        </div>
+        <input type="text" id="adresse-input" placeholder="Adresse du concert" autocomplete="off">
         <ul id="suggestions"></ul>
     </div>
 
     <table>
         <tr>
-            <td>Prestation Live Dirty Rosie</td>
+            <td>
+                Prestation Dirty Rosie 
+                <span id="type-presta-display"></span>
+                <select id="type-presta">
+                    <option value="0">-- Choisir --</option>
+                    <option value="500">Bar</option>
+                    <option value="1200">Fest / Privée</option>
+                </select>
+            </td>
             <td style="text-align: right;"><input type="text" id="prestation" class="input-montant" value="0"> €</td>
         </tr>
         <tr>
-            <td>Logistique et déplacements</td>
-            <td style="text-align: right;"><input type="text" id="frais" class="input-montant" value="0"> €</td>
+            <td>
+                Logistique (Sono + Lights)
+                <span id="type-log-display"></span>
+                <select id="type-log">
+                    <option value="0">Sans</option>
+                    <option value="200">Avec</option>
+                </select>
+            </td>
+            <td style="text-align: right;"><input type="text" id="logistique" class="input-montant" value="0"> €</td>
+        </tr>
+        <tr>
+            <td>
+                Déplacement (<input type="text" id="km-input" style="width: 50px; padding: 2px; margin:0; text-align: center;" placeholder="0"> km à 0,636€)
+            </td>
+            <td style="text-align: right;"><input type="text" id="deplacement" class="input-montant" value="0"> €</td>
         </tr>
         <tr class="total-row">
             <td>TOTAL DEVIS (TVA non applicable)</td>
@@ -86,8 +111,8 @@
     </table>
 
     <div class="info-complementaire">
-        <strong>Conditions d'annulation :</strong> En cas d'annulation par l'organisateur moins de 3 semaines (21 jours) avant la date de l'événement, l'association se réserve le droit de conserver l'intégralité de l'acompte versé.<br><br>
-        <strong>Note :</strong> Règlement par virement. Mention légale : TVA non applicable, art. 293 B du CGI.
+        <strong>Conditions d'annulation :</strong> En cas d'annulation par l'organisateur moins de 3 semaines (21 jours) avant l'événement, l'association se réserve le droit de conserver l'intégralité de l'acompte.<br><br>
+        <strong>Note :</strong> Mention légale : TVA non applicable, art. 293 B du CGI.
     </div>
 
     <div class="signature-zone">
@@ -102,11 +127,13 @@
 </div>
 
 <div class="btn-group">
-    <button id="btn-pdf" class="btn">1. GÉNÉRER PDF</button>
-    <button id="btn-mail" class="btn">2. PRÉPARER L'EMAIL</button>
+    <button id="btn-pdf" class="btn" disabled title="Remplir Email et Tel pour activer">1. GÉNÉRER PDF</button>
+    <button id="btn-mail" class="btn" disabled title="Remplir Email et Tel pour activer">2. PRÉPARER L'EMAIL</button>
 </div>
 
 <script>
+    const tarifKm = 0.636;
+
     window.addEventListener('DOMContentLoaded', () => {
         const d = new Date();
         const num = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}`;
@@ -114,23 +141,50 @@
         document.getElementById('date-display').innerText = "Le " + d.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
     });
 
-    const inputs = ['prestation', 'frais', 'acompte'];
     function calculer() {
+        const mail = document.getElementById('client-email').value.trim();
+        const tel = document.getElementById('client-tel').value.trim();
+        const totalSpan = document.getElementById('total-devis');
+        const soldeSpan = document.getElementById('solde-final');
+        const buttons = [document.getElementById('btn-pdf'), document.getElementById('btn-mail')];
+
+        // Activation uniquement si mail et tel sont présents
+        if (mail === "" || tel === "") {
+            totalSpan.innerText = "0,00";
+            soldeSpan.innerText = "0,00";
+            buttons.forEach(b => b.disabled = true);
+            return;
+        }
+
+        buttons.forEach(b => b.disabled = false);
         const val = (id) => parseFloat(document.getElementById(id).value.replace(',', '.')) || 0;
-        const total = val('prestation') + val('frais');
+        
+        const km = val('km-input');
+        const mntDep = km * tarifKm;
+        document.getElementById('deplacement').value = mntDep.toFixed(2).replace('.', ',');
+
+        const total = val('prestation') + val('logistique') + val('deplacement');
         const solde = total - val('acompte');
-        document.getElementById('total-devis').innerText = total.toLocaleString('fr-FR', {minimumFractionDigits: 2});
-        document.getElementById('solde-final').innerText = solde.toLocaleString('fr-FR', {minimumFractionDigits: 2});
+        
+        totalSpan.innerText = total.toLocaleString('fr-FR', {minimumFractionDigits: 2});
+        soldeSpan.innerText = solde.toLocaleString('fr-FR', {minimumFractionDigits: 2});
     }
 
-    inputs.forEach(id => {
-        const el = document.getElementById(id);
-        el.addEventListener('input', calculer);
-        el.addEventListener('focus', function() { if(this.value === "0") this.value = ""; });
-        el.addEventListener('blur', function() { if(this.value === "") this.value = "0"; });
+    document.getElementById('type-presta').addEventListener('change', function() {
+        document.getElementById('prestation').value = this.value;
+        document.getElementById('type-presta-display').innerText = this.options[this.selectedIndex].text;
+        calculer();
+    });
+    document.getElementById('type-log').addEventListener('change', function() {
+        document.getElementById('logistique').value = this.value;
+        document.getElementById('type-log-display').innerText = this.options[this.selectedIndex].text;
+        calculer();
     });
 
-    // API Adresses
+    ['client-email', 'client-tel', 'prestation', 'logistique', 'km-input', 'acompte'].forEach(id => {
+        document.getElementById(id).addEventListener('input', calculer);
+    });
+
     const addr = document.getElementById('adresse-input');
     const sug = document.getElementById('suggestions');
     addr.addEventListener('input', function() {
@@ -143,33 +197,21 @@
                     data.features.forEach(f => {
                         let li = document.createElement('li');
                         li.textContent = f.properties.label;
-                        li.onclick = () => { addr.value = f.properties.label; sug.style.display = 'none'; };
+                        li.onclick = () => { addr.value = f.properties.label; sug.style.display = 'none'; calculer(); };
                         sug.appendChild(li);
                     });
                 }
             });
     });
 
-    // Action PDF
     document.getElementById('btn-pdf').onclick = () => window.print();
 
-    // Action Mail
     document.getElementById('btn-mail').onclick = () => {
         const emailClient = document.getElementById('client-email').value;
         const numDevis = document.getElementById('num-devis').value;
-        const nomLieu = document.getElementById('client-name').value;
-        
-        if(!emailClient) {
-            alert("Veuillez saisir l'adresse mail de l'organisateur.");
-            return;
-        }
-
-        const subject = encodeURIComponent(`Devis Dirty Rosie n° ${numDevis} - ${nomLieu}`);
-        const body = encodeURIComponent(`Bonjour,\n\nVeuillez trouver ci-joint le devis concernant la prestation du groupe Dirty Rosie.\n\nMusicalement,\nStéphane - Dirty Rosie`);
-        const cc = "dirtyrosierock@gmail.com";
-
-        // Ouvre le client mail par défaut
-        window.location.href = `mailto:${emailClient}?cc=${cc}&subject=${subject}&body=${body}`;
+        const subject = encodeURIComponent(`Devis Dirty Rosie n° ${numDevis}`);
+        const body = encodeURIComponent(`Bonjour,\n\nVeuillez trouver ci-joint le devis pour la prestation du groupe Dirty Rosie.\n\nMusicalement,\nStéphane`);
+        window.location.href = `mailto:${emailClient}?cc=dirtyrosierock@gmail.com&subject=${subject}&body=${body}`;
     };
 </script>
 </body>
