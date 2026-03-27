@@ -26,8 +26,19 @@
         #suggestions { position: absolute; background: white; border: 1px solid #ccc; width: calc(100% - 60px); z-index: 100; display: none; list-style: none; padding: 0; margin: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         #suggestions li { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
         #suggestions li:hover { background: #fce4ec; }
-        #btn-pdf { width: 100%; max-width: 750px; padding: 18px; background: #e91e63; color: white; border: none; font-weight: bold; font-size: 1.1em; margin: 20px auto; display: block; border-radius: 12px; cursor: pointer; }
-        @media print { #btn-pdf, #suggestions { display: none !important; } body { background: white; padding: 0; } #facture-container { box-shadow: none; width: 100%; margin: 0; padding: 10px; } input { border: none !important; background: transparent !important; padding: 2px !important; } .input-montant { border: none !important; } }
+        .btn-group { display: flex; gap: 10px; max-width: 750px; margin: 20px auto; }
+        .btn { flex: 1; padding: 18px; border: none; font-weight: bold; font-size: 1.1em; border-radius: 12px; cursor: pointer; color: white; transition: 0.3s; }
+        #btn-pdf { background: #e91e63; }
+        #btn-mail { background: #1976d2; }
+        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
+
+        @media print { 
+            .btn-group, #suggestions { display: none !important; } 
+            body { background: white; padding: 0; } 
+            #facture-container { box-shadow: none; width: 100%; margin: 0; padding: 10px; } 
+            input { border: none !important; background: transparent !important; padding: 2px !important; } 
+            .input-montant { border: none !important; } 
+        }
     </style>
 </head>
 <body>
@@ -45,7 +56,8 @@
     </div>
 
     <div style="position: relative;">
-        <input type="text" id="client-name" placeholder="Organisateur / Lieu">
+        <input type="text" id="client-name" placeholder="Nom de l'organisateur / Lieu">
+        <input type="email" id="client-email" placeholder="E-mail de l'organisateur (pour l'envoi)">
         <input type="text" id="adresse-input" placeholder="Adresse du concert (Saisie intuitive...)" autocomplete="off">
         <ul id="suggestions"></ul>
     </div>
@@ -75,7 +87,7 @@
 
     <div class="info-complementaire">
         <strong>Conditions d'annulation :</strong> En cas d'annulation par l'organisateur moins de 3 semaines (21 jours) avant la date de l'événement, l'association se réserve le droit de conserver l'intégralité de l'acompte versé.<br><br>
-        <strong>Note :</strong> Règlement par virement (IBAN ci-dessous). Mention légale : TVA non applicable, art. 293 B du CGI.
+        <strong>Note :</strong> Règlement par virement. Mention légale : TVA non applicable, art. 293 B du CGI.
     </div>
 
     <div class="signature-zone">
@@ -89,7 +101,10 @@
     </div>
 </div>
 
-<button id="btn-pdf">GÉNÉRER LE DEVIS (PDF)</button>
+<div class="btn-group">
+    <button id="btn-pdf" class="btn">1. GÉNÉRER PDF</button>
+    <button id="btn-mail" class="btn">2. PRÉPARER L'EMAIL</button>
+</div>
 
 <script>
     window.addEventListener('DOMContentLoaded', () => {
@@ -104,7 +119,6 @@
         const val = (id) => parseFloat(document.getElementById(id).value.replace(',', '.')) || 0;
         const total = val('prestation') + val('frais');
         const solde = total - val('acompte');
-        
         document.getElementById('total-devis').innerText = total.toLocaleString('fr-FR', {minimumFractionDigits: 2});
         document.getElementById('solde-final').innerText = solde.toLocaleString('fr-FR', {minimumFractionDigits: 2});
     }
@@ -116,6 +130,7 @@
         el.addEventListener('blur', function() { if(this.value === "") this.value = "0"; });
     });
 
+    // API Adresses
     const addr = document.getElementById('adresse-input');
     const sug = document.getElementById('suggestions');
     addr.addEventListener('input', function() {
@@ -135,7 +150,27 @@
             });
     });
 
+    // Action PDF
     document.getElementById('btn-pdf').onclick = () => window.print();
+
+    // Action Mail
+    document.getElementById('btn-mail').onclick = () => {
+        const emailClient = document.getElementById('client-email').value;
+        const numDevis = document.getElementById('num-devis').value;
+        const nomLieu = document.getElementById('client-name').value;
+        
+        if(!emailClient) {
+            alert("Veuillez saisir l'adresse mail de l'organisateur.");
+            return;
+        }
+
+        const subject = encodeURIComponent(`Devis Dirty Rosie n° ${numDevis} - ${nomLieu}`);
+        const body = encodeURIComponent(`Bonjour,\n\nVeuillez trouver ci-joint le devis concernant la prestation du groupe Dirty Rosie.\n\nMusicalement,\nStéphane - Dirty Rosie`);
+        const cc = "dirtyrosierock@gmail.com";
+
+        // Ouvre le client mail par défaut
+        window.location.href = `mailto:${emailClient}?cc=${cc}&subject=${subject}&body=${body}`;
+    };
 </script>
 </body>
 </html>
