@@ -11,37 +11,41 @@
         .logo-img { max-width: 220px; height: auto; display: block; margin: 0 auto 10px auto; }
         .facture-titre { background: #fce4ec; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px; border: 1px solid #f8bbd0; }
         .num-input { width: 250px; font-weight: bold; text-align: center; border: 1px dashed #e91e63; background: #fff; font-size: 1.1em; color: #c2185b; padding: 5px; }
+        
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
         .required-field { border: 2px solid #e91e63 !important; background: #fffcfd; }
-        select { cursor: pointer; background: #fff; border: 1px solid #e91e63; font-weight: bold; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 25px; }
         td { padding: 12px 10px; border-bottom: 1px solid #eee; }
         .input-montant { width: 110px; text-align: right; font-weight: bold; background: #fffde7 !important; border: 1px solid #ddd; }
         .total-row { background: #f8f9fa; font-weight: bold; }
         .solde-box { background: #880e4f; color: white; font-size: 1.1em; font-weight: bold; }
         .solde-box td { border-bottom: none; padding: 15px; }
-        .mention-indicative { font-size: 12px; font-style: italic; color: #666; text-align: right; margin-top: 5px; }
+        
         .info-complementaire { margin-top: 25px; padding: 15px; border-left: 4px solid #e91e63; background: #fff5f8; font-size: 13px; line-height: 1.5; }
         .signature-zone { text-align: right; margin-top: 30px; }
         .signature-img { max-width: 150px; height: auto; margin-top: 5px; }
         .footer { margin-top: 35px; text-align: center; font-size: 11px; color: #666; border-top: 1px solid #eee; padding-top: 15px; }
+        
         #suggestions { position: absolute; background: white; border: 1px solid #ccc; width: calc(100% - 60px); z-index: 100; display: none; list-style: none; padding: 0; margin: 0; }
         #suggestions li { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        
         .btn-group { display: flex; gap: 10px; max-width: 750px; margin: 20px auto; }
         .btn { flex: 1; padding: 18px; border: none; font-weight: bold; font-size: 1.1em; border-radius: 12px; cursor: pointer; color: white; transition: 0.3s; }
         #btn-pdf { background: #e91e63; }
         #btn-mail { background: #1976d2; }
+        #check-cal { background: #4285F4; color: white; border: none; border-radius: 6px; cursor: pointer; padding: 10px; font-weight: bold; font-size: 12px; min-width: 130px; }
         .btn:disabled { background: #ccc; cursor: not-allowed; opacity: 0.6; }
         
         @media print { 
-            .btn-group, #suggestions, select { display: none !important; } 
-            #type-presta-display, #type-log-display { display: inline-block !important; font-weight: bold; }
+            .btn-group, #suggestions, select, #check-cal { display: none !important; } 
             body { background: white; padding: 0; } 
             #facture-container { box-shadow: none; width: 100%; margin: 0; padding: 10px; } 
             input { border: none !important; background: transparent !important; padding: 2px !important; } 
-            .input-montant { border: none !important; } 
+            .input-montant { border: none !important; text-align: right; width: auto; }
+            .required-field { border: none !important; }
+            input[type="date"]::-webkit-calendar-picker-indicator { display: none; -webkit-appearance: none; }
         }
-        #type-presta-display, #type-log-display { display: none; }
     </style>
 </head>
 <body>
@@ -59,6 +63,13 @@
 
     <div style="position: relative;">
         <input type="text" id="client-name" placeholder="Nom de l'organisateur / Lieu">
+        
+        <div style="display: flex; gap: 10px; align-items: center; margin: 8px 0;">
+            <span style="font-weight: bold; font-size: 0.9em; color: #e91e63; min-width: 140px;">DATE DU CONCERT :</span>
+            <input type="date" id="date-event" class="required-field" style="margin: 0; flex-grow: 1;">
+            <button type="button" id="check-cal">📅 VÉRIFIER DISPO</button>
+        </div>
+
         <div style="display: flex; gap: 10px;">
             <input type="email" id="client-email" class="required-field" placeholder="E-mail (OBLIGATOIRE)" required>
             <input type="tel" id="client-tel" class="required-field" placeholder="Téléphone (OBLIGATOIRE)" required>
@@ -71,9 +82,8 @@
         <tr>
             <td>
                 Prestation Dirty Rosie 
-                <span id="type-presta-display"></span>
                 <select id="type-presta">
-                    <option value="0">-- Choisir --</option>
+                    <option value="0">-- Choisir Prestation --</option>
                     <option value="500">Bar (500€)</option>
                     <option value="1200">Fest (1200€)</option>
                 </select>
@@ -83,7 +93,6 @@
         <tr>
             <td>
                 Logistique (Sono + Light)
-                <span id="type-log-display"></span>
                 <select id="type-log">
                     <option value="0">Sans (0€)</option>
                     <option value="200">Avec (200€)</option>
@@ -93,7 +102,7 @@
         </tr>
         <tr>
             <td>
-                Déplacement (<input type="text" id="km-input" style="width: 50px; padding: 2px; margin:0; text-align: center;" placeholder="0"> km à 0,636€)
+                Déplacement (<input type="text" id="km-input" style="width: 50px; padding: 2px; text-align: center;" placeholder="0"> km à 0,636€)
             </td>
             <td style="text-align: right;"><input type="text" id="deplacement" class="input-montant" value="0"> €</td>
         </tr>
@@ -110,15 +119,10 @@
             <td style="text-align: right;"><span id="solde-final">0,00</span> €</td>
         </tr>
     </table>
-    
-    <div class="mention-indicative">
-        "Ce montant est indicatif et peut évidemment être sujet à discussion selon l'événement"
-    </div>
 
     <div class="info-complementaire">
-        <strong>Conditions d'annulation :</strong> En cas d'annulation par l'organisateur moins de 3 semaines (21 jours) avant l'événement, l'association se réserve le droit de conserver l'intégralité de l'acompte.<br><br>
-        <strong>Note :</strong> Règlement de l'acompte par virement. <br>
-        <strong>IBAN : FR76 1380 7000 6133 8210 2290 074</strong> | BIC : CMCIFR2A<br>
+        <strong>Conditions d'annulation :</strong> Annulation < 21 jours : l'acompte est conservé.<br>
+        <strong>Règlement :</strong> Virement IBAN : FR76 1380 7000 6133 8210 2290 074 | BIC : CMCIFR2A<br>
         Mention légale : TVA non applicable, art. 293 B du CGI.
     </div>
 
@@ -128,8 +132,7 @@
     </div>
 
     <div class="footer">
-        Association Power Load - RNA : W442027140 - 1045 Les Bourelaines 44521 Oudon<br>
-        Contact : 06 81 06 51 12
+        Association Power Load - RNA : W442027140 - 1045 Les Bourelaines 44521 Oudon - 06 81 06 51 12
     </div>
 </div>
 
@@ -151,73 +154,66 @@
     function calculer() {
         const mail = document.getElementById('client-email').value.trim();
         const tel = document.getElementById('client-tel').value.trim();
+        const dateEv = document.getElementById('date-event').value;
         const totalSpan = document.getElementById('total-devis');
         const soldeSpan = document.getElementById('solde-final');
         const buttons = [document.getElementById('btn-pdf'), document.getElementById('btn-mail')];
 
-        if (mail === "" || tel === "") {
-            totalSpan.innerText = "0,00";
-            soldeSpan.innerText = "0,00";
-            buttons.forEach(b => b.disabled = true);
-            return;
-        }
+        // Activation boutons si champs obligatoires remplis
+        const isValid = mail.includes('@') && tel.length >= 10 && dateEv !== "";
+        buttons.forEach(b => b.disabled = !isValid);
 
-        buttons.forEach(b => b.disabled = false);
-        const val = (id) => parseFloat(document.getElementById(id).value.replace(',', '.')) || 0;
+        const getVal = (id) => parseFloat(document.getElementById(id).value.replace(',', '.')) || 0;
         
-        const km = val('km-input');
+        const km = getVal('km-input');
         const mntDep = km * tarifKm;
         document.getElementById('deplacement').value = mntDep.toFixed(2).replace('.', ',');
 
-        const total = val('prestation') + val('logistique') + val('deplacement');
-        const solde = total - val('acompte');
+        const total = getVal('prestation') + getVal('logistique') + mntDep;
+        const solde = total - getVal('acompte');
         
         totalSpan.innerText = total.toLocaleString('fr-FR', {minimumFractionDigits: 2});
         soldeSpan.innerText = solde.toLocaleString('fr-FR', {minimumFractionDigits: 2});
     }
 
-    document.getElementById('type-presta').addEventListener('change', function() {
-        document.getElementById('prestation').value = this.value;
-        document.getElementById('type-presta-display').innerText = this.options[this.selectedIndex].text;
-        calculer();
-    });
-    document.getElementById('type-log').addEventListener('change', function() {
-        document.getElementById('logistique').value = this.value;
-        document.getElementById('type-log-display').innerText = this.options[this.selectedIndex].text;
-        calculer();
+    // Gestion Calendrier
+    document.getElementById('check-cal').onclick = () => {
+        const dateEv = document.getElementById('date-event').value;
+        if (!dateEv) { alert("Choisissez une date d'abord !"); return; }
+        window.open(`https://calendar.google.com/calendar/u/0/r/day/${dateEv.replaceAll('-', '/')}`, '_blank');
+    };
+
+    // Events
+    document.getElementById('type-presta').onchange = function() { document.getElementById('prestation').value = this.value; calculer(); };
+    document.getElementById('type-log').onchange = function() { document.getElementById('logistique').value = this.value; calculer(); };
+    ['client-email', 'client-tel', 'date-event', 'prestation', 'logistique', 'km-input', 'acompte'].forEach(id => {
+        document.getElementById(id).oninput = calculer;
     });
 
-    ['client-email', 'client-tel', 'prestation', 'logistique', 'km-input', 'acompte'].forEach(id => {
-        document.getElementById(id).addEventListener('input', calculer);
-    });
-
+    // API Adresse
     const addr = document.getElementById('adresse-input');
     const sug = document.getElementById('suggestions');
-    addr.addEventListener('input', function() {
+    addr.oninput = function() {
         if (this.value.length < 5) { sug.style.display = 'none'; return; }
         fetch('https://api-adresse.data.gouv.fr/search/?q=' + encodeURIComponent(this.value) + '&limit=5')
             .then(r => r.json()).then(data => {
-                sug.innerHTML = '';
-                if (data.features.length > 0) {
-                    sug.style.display = 'block';
-                    data.features.forEach(f => {
-                        let li = document.createElement('li');
-                        li.textContent = f.properties.label;
-                        li.onclick = () => { addr.value = f.properties.label; sug.style.display = 'none'; calculer(); };
-                        sug.appendChild(li);
-                    });
-                }
+                sug.innerHTML = ''; sug.style.display = 'block';
+                data.features.forEach(f => {
+                    let li = document.createElement('li'); li.textContent = f.properties.label;
+                    li.onclick = () => { addr.value = f.properties.label; sug.style.display = 'none'; calculer(); };
+                    sug.appendChild(li);
+                });
             });
-    });
+    };
 
     document.getElementById('btn-pdf').onclick = () => window.print();
-
     document.getElementById('btn-mail').onclick = () => {
-        const emailClient = document.getElementById('client-email').value;
-        const numDevis = document.getElementById('num-devis').value;
-        const subject = encodeURIComponent(`Devis Dirty Rosie n° ${numDevis}`);
-        const body = encodeURIComponent(`Bonjour,\n\nVeuillez trouver ci-joint le devis pour la prestation du groupe Dirty Rosie.\n\nMusicalement,\nStéphane`);
-        window.location.href = `mailto:${emailClient}?cc=dirtyrosierock@gmail.com&subject=${subject}&body=${body}`;
+        const email = document.getElementById('client-email').value;
+        const num = document.getElementById('num-devis').value;
+        const d = new Date(document.getElementById('date-event').value).toLocaleDateString('fr-FR');
+        const subject = encodeURIComponent(`Devis Dirty Rosie n° ${num} - Concert du ${d}`);
+        const body = encodeURIComponent(`Bonjour,\n\nVeuillez trouver ci-joint le devis pour la prestation du groupe Dirty Rosie prévue le ${d}.\n\nMusicalement,\nStéphane`);
+        window.location.href = `mailto:${email}?cc=dirtyrosierock@gmail.com&subject=${subject}&body=${body}`;
     };
 </script>
 </body>
